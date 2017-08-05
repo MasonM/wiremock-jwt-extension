@@ -1,0 +1,38 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+
+group = 'com.github.masonm.wiremock'
+archivesBaseName = 'wiremock-jwt-extension'
+version = '0.1a'
+
+repositories {
+    mavenCentral()
+}
+
+task fatJar (type: Jar) {
+    classifier = 'standalone'
+
+    manifest {
+        attributes("Main-Class": "com.github.masonm.wiremock.JwtExtensionStandalone")
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    with jar
+}
+
+dependencies {
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
+    compile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.7.0'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
+    compile group: 'com.google.guava', name: 'guava', version: '18.0'
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
+    testCompile group: 'org.jmock', name: 'jmock', version: '2.5.1'
+    testCompile group: 'org.jmock', name: 'jmock-junit4', version: '2.5.1'
+    testCompile group: 'org.skyscreamer', name: 'jsonassert', version: '1.2.3'
+    testCompile group: 'com.toomuchcoding.jsonassert', name: 'jsonassert', version: '0.4.7'
+}
