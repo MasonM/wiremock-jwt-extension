@@ -1,12 +1,9 @@
 package com.github.masonm.wiremock;
 
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.CustomMatcherDefinition;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
@@ -34,6 +31,11 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
             return stubMapping;
         }
 
+        if (stubMapping.getRequest().getCustomMatcher() != null) {
+            // already has a custom matcher. Don't overwrite
+            return stubMapping;
+        }
+
         Map<String, MultiValuePattern> requestHeaders = stubMapping.getRequest().getHeaders();
         if (!requestHeaders.containsKey("Authorization")) {
             return stubMapping;
@@ -44,22 +46,28 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
             return stubMapping;
         }
 
-        Jwt token = new Jwt(authHeader);
-
-        Parameters stubMappingParams = new Parameters();
+        Parameters requestMatcherParameters = getRequestMatcherParameter(
+            new Jwt(authHeader),
+            (Iterable<String>)parameters.get(PAYLOAD_FIELDS)
+        );
         Map<String, Object> encodedRequest = Json.objectToMap(stubMapping.getRequest());
         encodedRequest.remove("headers");
-        stubMappingParams.put("request", encodedRequest);
+        requestMatcherParameters.put("request", encodedRequest);
+
+        RequestPattern newRequest = new RequestPatternBuilder(JwtMatcherExtension.NAME, requestMatcherParameters).build();
+        stubMapping.setRequest(newRequest);
+        return stubMapping;
+    }
+
+    private Parameters getRequestMatcherParameter(Jwt token, Iterable<String> payloadFields) {
+        Parameters params = new Parameters();
 
         Map<String, String> payload = new HashMap<>();
-        Iterable<String> payloadFields = (Iterable<String>)parameters.get(PAYLOAD_FIELDS);
         for (String field: payloadFields) {
             payload.put(field, token.getPayload().path(field).asText());
         }
-        stubMappingParams.put(JwtMatcherExtension.PARAM_NAME_PAYLOAD, payload);
+        params.put(JwtMatcherExtension.PARAM_NAME_PAYLOAD, payload);
 
-        RequestPattern newRequest = new RequestPatternBuilder(JwtMatcherExtension.NAME, stubMappingParams).build();
-        ResponseDefinition newResponse = ResponseDefinitionBuilder.like(stubMapping.getResponse()).build();
-        return new StubMapping(newRequest, newResponse);
+        return params;
     }
 }
