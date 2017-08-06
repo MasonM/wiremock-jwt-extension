@@ -14,7 +14,8 @@ public class Jwt {
     private final JsonNode header;
     private final JsonNode payload;
 
-    public Jwt(String token) {
+    public Jwt(String authHeaderValue) {
+        String token = authHeaderValue.substring("Bearer ".length());
         List<String> parts = Splitter.on(".").splitToList(token);
         if (parts.size() != 3) {
             this.header  = MissingNode.getInstance();

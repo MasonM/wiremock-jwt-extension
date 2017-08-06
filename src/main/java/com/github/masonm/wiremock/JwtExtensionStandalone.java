@@ -10,7 +10,7 @@ public final class JwtExtensionStandalone {
     // so we just delegate to that, passing along a CSV string with each extension class to load
     public static void main(String... args) {
         args = ArrayUtils.add(args,
-            "--extensions=" + JwtMatcherExtension.class.getName()
+            "--extensions=" + JwtMatcherExtension.class.getName() + "," + JwtStubMappingTransformer.class.getName()
         );
         new WireMockServerRunner().run(args);
     }

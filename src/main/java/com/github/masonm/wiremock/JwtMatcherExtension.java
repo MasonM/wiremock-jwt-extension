@@ -15,6 +15,11 @@ import static com.github.tomakehurst.wiremock.matching.MatchResult.noMatch;
 import static com.github.tomakehurst.wiremock.matching.MatchResult.exactMatch;
 
 public class JwtMatcherExtension extends RequestMatcherExtension {
+    public static final String NAME = "jwt-matcher";
+    public static final String PARAM_NAME_PAYLOAD = "payload";
+    public static final String PARAM_NAME_HEADER = "header";
+    public static final String PARAM_NAME_REQUEST = "request";
+
     @Override
     public String getName() {
         return "jwt-matcher";
@@ -22,12 +27,13 @@ public class JwtMatcherExtension extends RequestMatcherExtension {
 
     @Override
     public MatchResult match(Request request, Parameters parameters) {
-        if (!parameters.containsKey("payload") && !parameters.containsKey("header")) {
+        if (!parameters.containsKey(PARAM_NAME_PAYLOAD) && !parameters.containsKey(PARAM_NAME_HEADER)) {
             return noMatch();
         }
 
-        if (parameters.containsKey("request")) {
-            RequestPattern requestPattern = Json.mapToObject((Map<String, Object>) parameters.get("request"), RequestPattern.class);
+        if (parameters.containsKey(PARAM_NAME_REQUEST)) {
+            Map<String, Object> encodedRequest = (Map<String, Object>) parameters.get(PARAM_NAME_REQUEST);
+            RequestPattern requestPattern = Json.mapToObject(encodedRequest, RequestPattern.class);
             if (!requestPattern.match(request).isExactMatch()) {
                 return noMatch();
             }
@@ -38,16 +44,16 @@ public class JwtMatcherExtension extends RequestMatcherExtension {
             return noMatch();
         }
 
-        Jwt token = new Jwt(authString.substring("Bearer ".length()));
+        Jwt token = new Jwt(authString);
 
-        if (parameters.containsKey("header")) {
-            if (!matchParams(token.getHeader(), (Map<String, String>)parameters.get("header"))) {
+        if (parameters.containsKey(PARAM_NAME_HEADER)) {
+            if (!matchParams(token.getHeader(), (Map<String, String>)parameters.get(PARAM_NAME_HEADER))) {
                 return noMatch();
             }
         }
 
-        if (parameters.containsKey("payload")) {
-            if (!matchParams(token.getPayload(), (Map<String, String>)parameters.get("payload"))) {
+        if (parameters.containsKey(PARAM_NAME_PAYLOAD)) {
+            if (!matchParams(token.getPayload(), (Map<String, String>)parameters.get(PARAM_NAME_PAYLOAD))) {
                 return noMatch();
             }
         }
