@@ -1,4 +1,4 @@
-package com.github.masonm.wiremock;
+package com.github.masonm;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,8 +14,7 @@ public class Jwt {
     private final JsonNode header;
     private final JsonNode payload;
 
-    public Jwt(String authHeaderValue) {
-        String token = authHeaderValue.substring("Bearer ".length());
+    public Jwt(String token) {
         List<String> parts = Splitter.on(".").splitToList(token);
         if (parts.size() != 3) {
             this.header  = MissingNode.getInstance();
@@ -27,16 +26,19 @@ public class Jwt {
     }
 
     private JsonNode parsePart(String part) {
-        byte[] decodedJwtBody = Base64.getDecoder().decode(part);
-        if (decodedJwtBody == null) {
-            return null;
+        byte[] decodedJwtBody;
+
+        try {
+            decodedJwtBody = Base64.getDecoder().decode(part);
+        } catch (IllegalArgumentException ex) {
+            return MissingNode.getInstance();
         }
 
         try {
             ObjectMapper mapper = Json.getObjectMapper();
             return mapper.readValue(decodedJwtBody, JsonNode.class);
         } catch (IOException ioe) {
-            return null;
+            return MissingNode.getInstance();
         }
     }
 

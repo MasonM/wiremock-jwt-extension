@@ -1,5 +1,6 @@
-package com.github.masonm.wiremock;
+package com.github.masonm;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -32,7 +33,7 @@ public class JwtMatcherExtension extends RequestMatcherExtension {
         }
 
         if (parameters.containsKey(PARAM_NAME_REQUEST)) {
-            Map<String, Object> encodedRequest = (Map<String, Object>) parameters.get(PARAM_NAME_REQUEST);
+            Map<String, Object> encodedRequest = Json.objectToMap(parameters.get(PARAM_NAME_REQUEST));
             RequestPattern requestPattern = Json.mapToObject(encodedRequest, RequestPattern.class);
             if (!requestPattern.match(request).isExactMatch()) {
                 return noMatch();
@@ -44,25 +45,29 @@ public class JwtMatcherExtension extends RequestMatcherExtension {
             return noMatch();
         }
 
-        Jwt token = new Jwt(authString);
+        Jwt token = new Jwt(authString.substring("Bearer ".length()));
 
-        if (parameters.containsKey(PARAM_NAME_HEADER)) {
-            if (!matchParams(token.getHeader(), (Map<String, String>)parameters.get(PARAM_NAME_HEADER))) {
-                return noMatch();
-            }
+        if (parameters.containsKey(PARAM_NAME_HEADER) &&
+            !matchParams(token.getHeader(), parameters.get(PARAM_NAME_HEADER))
+        ) {
+            return noMatch();
         }
 
-        if (parameters.containsKey(PARAM_NAME_PAYLOAD)) {
-            if (!matchParams(token.getPayload(), (Map<String, String>)parameters.get(PARAM_NAME_PAYLOAD))) {
-                return noMatch();
-            }
+        if (parameters.containsKey(PARAM_NAME_PAYLOAD) &&
+            !matchParams(token.getPayload(), parameters.get(PARAM_NAME_PAYLOAD))
+        ) {
+            return noMatch();
         }
 
         return exactMatch();
     }
 
-    private boolean matchParams(JsonNode tokenValues, Map<String, String> parameters) {
-        for (Map.Entry<String, String> entry: parameters.entrySet()) {
+    private boolean matchParams(JsonNode tokenValues, Object parameters) {
+        Map<String, String> parameterMap = Json.getObjectMapper().convertValue(
+            parameters,
+            new TypeReference<Map<String, Object>>() {}
+        );
+        for (Map.Entry<String, String> entry: parameterMap.entrySet()) {
             String tokenValue = tokenValues.path(entry.getKey()).asText();
             if (!Objects.equals(tokenValue, entry.getValue())) {
                 return false;

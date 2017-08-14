@@ -1,7 +1,9 @@
 apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
-group = 'com.github.masonm.wiremock'
+group = 'com.github.masonm'
 archivesBaseName = 'wiremock-jwt-extension'
 version = '0.1a'
 
@@ -23,6 +25,73 @@ task fatJar (type: Jar) {
     with jar
 }
 
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allJava
+}
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+artifacts {
+    archives javadocJar, sourcesJar, fatJar
+}
+
+signing {
+    required { gradle.taskGraph.hasTask("uploadArchives") }
+    sign configurations.archives
+}
+
+if (!hasProperty('ossrhUsername') || !hasProperty('ossrhPassword')) {
+    ext.ossrhUsername = ''
+    ext.ossrhPassword = ''
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'wiremock-jwt-extension'
+                packaging 'jar'
+                description 'Wiremock request matcher and stub mapping transformer for JSON Web Tokens (JWT)'
+                url 'https://github.com/MasonM/wiremock-jwt-extension'
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/license/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id  'masonm'
+                        name 'Mason Malone'
+                    }
+                }
+
+                scm {
+                    connection 'scm:git:git://github.com/MasonM/wiremock-jwt-extension.git'
+                    developerConnection 'scm:git:ssh://github.com:MasonM/wiremock-jwt-extension.git'
+                    url 'https://github.com/MasonM/wiremock-jwt-extension'
+                }
+            }
+        }
+    }
+}
+
 dependencies {
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
     compile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.7.0'
@@ -35,4 +104,5 @@ dependencies {
     testCompile group: 'org.jmock', name: 'jmock-junit4', version: '2.5.1'
     testCompile group: 'org.skyscreamer', name: 'jsonassert', version: '1.2.3'
     testCompile group: 'com.toomuchcoding.jsonassert', name: 'jsonassert', version: '0.4.7'
+    testCompile group: 'com.github.tomakehurst', name: 'wiremock', version: '2.7.0', classifier: 'tests'
 }

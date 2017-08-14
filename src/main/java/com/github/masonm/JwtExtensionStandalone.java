@@ -1,4 +1,4 @@
-package com.github.masonm.wiremock;
+package com.github.masonm;
 
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner;
 import org.apache.commons.lang3.ArrayUtils;

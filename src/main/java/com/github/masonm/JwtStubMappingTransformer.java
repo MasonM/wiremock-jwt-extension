@@ -1,4 +1,4 @@
-package com.github.masonm.wiremock;
+package com.github.masonm;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -46,8 +46,9 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
             return stubMapping;
         }
 
+        String authToken = authHeader.substring("Bearer ".length());
         Parameters requestMatcherParameters = getRequestMatcherParameter(
-            new Jwt(authHeader),
+            new Jwt(authToken),
             (Iterable<String>)parameters.get(PAYLOAD_FIELDS)
         );
         Map<String, Object> encodedRequest = Json.objectToMap(stubMapping.getRequest());
