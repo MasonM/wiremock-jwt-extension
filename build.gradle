@@ -3,6 +3,7 @@ apply plugin: 'idea'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
+sourceCompatibility = 1.7
 group = 'com.github.masonm'
 archivesBaseName = 'wiremock-jwt-extension'
 version = '0.1a'
