@@ -2,19 +2,17 @@ package com.github.masonm;
 
 import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MockRequest;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class JwtMatcherExtensionTest {
     private static final String TEST_ENCODED_HEADER = Encoding.encodeBase64(JwtTest.TEST_HEADER.getBytes());
     private static final String TEST_ENCODED_PAYLOAD = Encoding.encodeBase64(JwtTest.TEST_PAYLOAD.getBytes());
-    private static final JwtMatcherExtension MATCHER = new JwtMatcherExtension();
     private static final Parameters HEADER_MATCH_PARAMETERS = Parameters.one(
         JwtMatcherExtension.PARAM_NAME_HEADER, ImmutableMap.of("foo", "bar")
     );
@@ -27,45 +25,71 @@ public class JwtMatcherExtensionTest {
 
     @Test
     public void noMatchWithMissingRequiredParameters() {
-        assertThat(MATCHER.match(mockRequest(), Parameters.empty()).isExactMatch(), is(false));
+        assertFalse(isExactMatch(mockRequest(), Parameters.empty()));
 
         Parameters invalidParameters = Parameters.one("foo", "bar");
-        assertThat(MATCHER.match(mockRequest(), invalidParameters).isExactMatch(), is(false));
+        assertFalse(isExactMatch(mockRequest(), invalidParameters));
     }
 
     @Test
     public void withValidParametersAndMatchingRequest() {
-        Request matchingRequest = mockRequest()
+        final MockRequest request = mockRequest()
             .header("Authorization", "Bearer " + TEST_ENCODED_HEADER + "." + TEST_ENCODED_PAYLOAD + ".f00");
-        assertThat(MATCHER.match(matchingRequest, HEADER_MATCH_PARAMETERS).isExactMatch(), is(true));
-        assertThat(MATCHER.match(matchingRequest, PAYLOAD_MATCH_PARAMETERS).isExactMatch(), is(true));
-        assertThat(MATCHER.match(matchingRequest, BOTH_MATCH_PARAMETERS).isExactMatch(), is(true));
+        assertTrue(isExactMatch(request, HEADER_MATCH_PARAMETERS));
+        assertTrue(isExactMatch(request, PAYLOAD_MATCH_PARAMETERS));
+        assertTrue(isExactMatch(request, BOTH_MATCH_PARAMETERS));
+    }
+
+    @Test
+    public void withValidParametersAndRequestWithBasicAuthorizationType() {
+        final MockRequest request = mockRequest()
+            .header("Authorization", "Basic " + TEST_ENCODED_HEADER + "." + TEST_ENCODED_PAYLOAD + ".f00");
+        assertFalse(isExactMatch(request, HEADER_MATCH_PARAMETERS));
+        assertFalse(isExactMatch(request, PAYLOAD_MATCH_PARAMETERS));
+        assertFalse(isExactMatch(request, BOTH_MATCH_PARAMETERS));
+    }
+
+    @Test
+    public void withValidParametersAndRequestWithoutAuthorization() {
+        final MockRequest request = mockRequest();
+        assertFalse(isExactMatch(request, HEADER_MATCH_PARAMETERS));
+        assertFalse(isExactMatch(request, PAYLOAD_MATCH_PARAMETERS));
+        assertFalse(isExactMatch(request, BOTH_MATCH_PARAMETERS));
+    }
+
+    @Test
+    public void withValidParametersAndRequestWithInvalidAuthorization() {
+        final MockRequest request = mockRequest().header("Authorization", "Bearer f00");
+        assertFalse(isExactMatch(request, HEADER_MATCH_PARAMETERS));
+        assertFalse(isExactMatch(request, PAYLOAD_MATCH_PARAMETERS));
+        assertFalse(isExactMatch(request, BOTH_MATCH_PARAMETERS));
     }
 
     @Test
     public void withValidParametersAndNonMatchingRequest() {
-        Request notMatchingRequest = mockRequest()
+        final MockRequest request = mockRequest()
             .header("Authorization", "Bearer " + TEST_ENCODED_PAYLOAD + "." + TEST_ENCODED_HEADER + ".f00");
-        assertThat(MATCHER.match(notMatchingRequest, HEADER_MATCH_PARAMETERS).isExactMatch(), is(false));
-        assertThat(MATCHER.match(notMatchingRequest, PAYLOAD_MATCH_PARAMETERS).isExactMatch(), is(false));
-        assertThat(MATCHER.match(notMatchingRequest, BOTH_MATCH_PARAMETERS).isExactMatch(), is(false));
+        assertFalse(isExactMatch(request, HEADER_MATCH_PARAMETERS));
+        assertFalse(isExactMatch(request, PAYLOAD_MATCH_PARAMETERS));
+        assertFalse(isExactMatch(request, BOTH_MATCH_PARAMETERS));
     }
 
     @Test
     public void withValidParametersAndOnlyHeaderMatchingRequest() {
-        Request notMatchingRequest = mockRequest()
+        final MockRequest request = mockRequest()
             .header("Authorization", "Bearer " + TEST_ENCODED_HEADER + "." + TEST_ENCODED_HEADER + ".f00");
-        assertThat(MATCHER.match(notMatchingRequest, HEADER_MATCH_PARAMETERS).isExactMatch(), is(true));
-        assertThat(MATCHER.match(notMatchingRequest, PAYLOAD_MATCH_PARAMETERS).isExactMatch(), is(false));
-        assertThat(MATCHER.match(notMatchingRequest, BOTH_MATCH_PARAMETERS).isExactMatch(), is(false));
+        assertTrue(isExactMatch(request, HEADER_MATCH_PARAMETERS));
+        assertFalse(isExactMatch(request, PAYLOAD_MATCH_PARAMETERS));
+        assertFalse(isExactMatch(request, BOTH_MATCH_PARAMETERS));
     }
 
     @Test
-    public void withValidParametersAndInvalidRequest() {
-        Request invalidHeaderRequest = mockRequest().header("Authorization", "Bearer f00");
-        assertThat(MATCHER.match(invalidHeaderRequest, HEADER_MATCH_PARAMETERS).isExactMatch(), is(false));
-        assertThat(MATCHER.match(invalidHeaderRequest, PAYLOAD_MATCH_PARAMETERS).isExactMatch(), is(false));
-        assertThat(MATCHER.match(invalidHeaderRequest, BOTH_MATCH_PARAMETERS).isExactMatch(), is(false));
+    public void withValidParametersAndOnlyPayloadMatchingRequest() {
+        final MockRequest request = mockRequest()
+            .header("Authorization", "Bearer " + TEST_ENCODED_PAYLOAD + "." + TEST_ENCODED_PAYLOAD + ".f00");
+        assertFalse(isExactMatch(request, HEADER_MATCH_PARAMETERS));
+        assertTrue(isExactMatch(request, PAYLOAD_MATCH_PARAMETERS));
+        assertFalse(isExactMatch(request, BOTH_MATCH_PARAMETERS));
     }
 
     @Test
@@ -79,9 +103,13 @@ public class JwtMatcherExtensionTest {
         MockRequest testRequest = mockRequest()
             .url("/wrong_url")
             .header("Authorization", "Bearer " + TEST_ENCODED_HEADER + "." + TEST_ENCODED_PAYLOAD + ".f00");
-        assertThat(MATCHER.match(testRequest, requestAndBodyParmaters).isExactMatch(), is(false));
+        assertFalse(isExactMatch(testRequest, requestAndBodyParmaters));
 
         testRequest.url("/test_url");
-        assertThat(MATCHER.match(testRequest, requestAndBodyParmaters).isExactMatch(), is(true));
+        assertTrue(isExactMatch(testRequest, requestAndBodyParmaters));
+    }
+
+    private boolean isExactMatch(MockRequest request, Parameters parameters) {
+        return new JwtMatcherExtension().match(request.asLoggedRequest(), parameters).isExactMatch();
     }
 }
