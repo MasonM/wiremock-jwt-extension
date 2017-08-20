@@ -47,14 +47,22 @@ public class JwtMatcherExtension extends RequestMatcherExtension {
 
         Jwt token = new Jwt(authString.substring("Bearer ".length()));
 
-        if (parameters.containsKey(PARAM_NAME_HEADER) &&
-            !matchParams(token.getHeader(), parameters.get(PARAM_NAME_HEADER))
+        if (
+            parameters.containsKey(PARAM_NAME_HEADER) &&
+            (
+                !token.getHeader().isPresent() ||
+                !matchParams(token.getHeader().get(), parameters.get(PARAM_NAME_HEADER))
+            )
         ) {
             return noMatch();
         }
 
-        if (parameters.containsKey(PARAM_NAME_PAYLOAD) &&
-            !matchParams(token.getPayload(), parameters.get(PARAM_NAME_PAYLOAD))
+        if (
+            parameters.containsKey(PARAM_NAME_PAYLOAD) &&
+            (
+                !token.getPayload().isPresent() ||
+                !matchParams(token.getPayload().get(), parameters.get(PARAM_NAME_PAYLOAD))
+            )
         ) {
             return noMatch();
         }

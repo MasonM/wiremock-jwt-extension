@@ -9,12 +9,13 @@ import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.google.common.base.Optional;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class JwtStubMappingTransformer extends StubMappingTransformer {
-    private static final String PAYLOAD_FIELDS = "payloadFields";
+    public static final String PAYLOAD_FIELDS = "payloadFields";
 
     @Override
     public String getName() {
@@ -48,21 +49,29 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
         }
 
         String authToken = authHeader.substring("Bearer ".length());
-        Parameters requestMatcherParameters = getRequestMatcherParameter(
+        Optional<Parameters> requestMatcherParameters = getRequestMatcherParameter(
             new Jwt(authToken),
             parameters.get(PAYLOAD_FIELDS)
         );
 
+        if (!requestMatcherParameters.isPresent()) {
+            return stubMapping;
+        }
+
         Map<String, Object> encodedRequest = Json.objectToMap(stubMapping.getRequest());
         encodedRequest.remove("headers");
-        requestMatcherParameters.put("request", encodedRequest);
+        requestMatcherParameters.get().put("request", encodedRequest);
 
-        RequestPattern newRequest = new RequestPatternBuilder(JwtMatcherExtension.NAME, requestMatcherParameters).build();
+        RequestPattern newRequest = new RequestPatternBuilder(JwtMatcherExtension.NAME, requestMatcherParameters.get()).build();
         stubMapping.setRequest(newRequest);
         return stubMapping;
     }
 
-    private Parameters getRequestMatcherParameter(Jwt token, Object payloadParamValue) {
+    private Optional<Parameters> getRequestMatcherParameter(Jwt token, Object payloadParamValue) {
+        if (!token.getPayload().isPresent()) {
+            return Optional.absent();
+        }
+
         Iterable<String> payloadFields = Json.getObjectMapper().convertValue(
             payloadParamValue,
             new TypeReference<Iterable<String>>() {}
@@ -71,10 +80,10 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
 
         Map<String, String> payload = new HashMap<>();
         for (String field: payloadFields) {
-            payload.put(field, token.getPayload().path(field).asText());
+            payload.put(field, token.getPayload().get().path(field).asText());
         }
         params.put(JwtMatcherExtension.PARAM_NAME_PAYLOAD, payload);
 
-        return params;
+        return Optional.of(params);
     }
 }
