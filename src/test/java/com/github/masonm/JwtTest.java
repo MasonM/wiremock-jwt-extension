@@ -11,9 +11,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class JwtTest {
-    public static final String TEST_HEADER = "{ \"foo\": \"bar\" }";
-    public static final String TEST_PAYLOAD = "{ \"bar\": \"bam\" }";
-
     @Test
     public void constructorUsesAbsentForInvalidTokens() {
         final ImmutableList<String> testValues = ImmutableList.of(
@@ -27,26 +24,25 @@ public class JwtTest {
         for (String testValue: testValues) {
             Jwt token = new Jwt(testValue);
             String errMsg = "Failed with value '" + testValue + "'";
-            assertThat(errMsg, token.getHeader().isPresent(), is(false));
-            assertThat(errMsg, token.getPayload().isPresent(), is(false));
+            assertThat(errMsg, token.getHeader().isMissingNode(), is(true));
+            assertThat(errMsg, token.getPayload().isMissingNode(), is(true));
         }
     }
 
     @Test
     public void withValidToken() {
-        final String header = Encoding.encodeBase64(TEST_HEADER.getBytes());
-        final String payload = Encoding.encodeBase64(TEST_PAYLOAD.getBytes());
+        final TestAuthHeader testAuthHeader = new TestAuthHeader("foo", "bar");
 
-        final Jwt token = new Jwt(header + "." + payload + ".signature_not_verified");
-        assertThat(token.getHeader().isPresent(), is(true));
-        assertThat(token.getPayload().isPresent(), is(true));
+        final Jwt token = new Jwt(testAuthHeader.toString());
+        assertThat(token.getHeader().isMissingNode(), is(false));
+        assertThat(token.getPayload().isMissingNode(), is(false));
 
         final ObjectNode headerRoot = JsonNodeFactory.instance.objectNode();
-        headerRoot.put("foo", "bar");
-        assertThat(token.getHeader().get(), is((JsonNode) headerRoot));
+        headerRoot.put("foo_key", "foo_value");
+        assertThat(token.getHeader(), is((JsonNode) headerRoot));
 
         final ObjectNode payloadRoot = JsonNodeFactory.instance.objectNode();
-        payloadRoot.put("bar", "bam");
-        assertThat(token.getPayload().get(), is((JsonNode) payloadRoot));
+        payloadRoot.put("bar_key", "bar_value");
+        assertThat(token.getPayload(), is((JsonNode) payloadRoot));
     }
 }

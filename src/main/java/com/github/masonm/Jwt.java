@@ -2,26 +2,29 @@ package com.github.masonm;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.MissingNode;
 import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 
 import java.io.IOException;
 import java.util.List;
 
 public class Jwt {
-    private final Optional<JsonNode> header;
-    private final Optional<JsonNode> payload;
+    private final JsonNode header;
+    private final JsonNode payload;
 
     public Jwt(String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring("Bearer ".length());
+        }
         List<String> parts = Splitter.on(".").splitToList(token);
         if (parts.size() != 3) {
-            this.header  = Optional.absent();
-            this.payload = Optional.absent();
+            this.header  = MissingNode.getInstance();
+            this.payload = MissingNode.getInstance();
         } else {
-            this.header = Optional.fromNullable(parsePart(parts.get(0)));
-            this.payload = Optional.fromNullable(parsePart(parts.get(1)));
+            this.header = parsePart(parts.get(0));
+            this.payload = parsePart(parts.get(1));
         }
     }
 
@@ -31,22 +34,22 @@ public class Jwt {
         try {
             decodedJwtBody = Encoding.decodeBase64(part);
         } catch (IllegalArgumentException ex) {
-            return null;
+            return MissingNode.getInstance();
         }
 
         try {
             ObjectMapper mapper = Json.getObjectMapper();
             return mapper.readValue(decodedJwtBody, JsonNode.class);
         } catch (IOException ioe) {
-            return null;
+            return MissingNode.getInstance();
         }
     }
 
-    public Optional<JsonNode> getPayload() {
+    public JsonNode getPayload() {
         return payload;
     }
 
-    public Optional<JsonNode> getHeader() {
+    public JsonNode getHeader() {
         return header;
     }
 }

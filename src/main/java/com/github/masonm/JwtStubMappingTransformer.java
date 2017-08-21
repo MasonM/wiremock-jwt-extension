@@ -39,7 +39,7 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
         }
 
         Map<String, MultiValuePattern> requestHeaders = stubMapping.getRequest().getHeaders();
-        if (!requestHeaders.containsKey("Authorization")) {
+        if (requestHeaders == null || !requestHeaders.containsKey("Authorization")) {
             return stubMapping;
         }
 
@@ -48,9 +48,8 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
             return stubMapping;
         }
 
-        String authToken = authHeader.substring("Bearer ".length());
         Optional<Parameters> requestMatcherParameters = getRequestMatcherParameter(
-            new Jwt(authToken),
+            new Jwt(authHeader),
             parameters.get(PAYLOAD_FIELDS)
         );
 
@@ -68,7 +67,7 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
     }
 
     private Optional<Parameters> getRequestMatcherParameter(Jwt token, Object payloadParamValue) {
-        if (!token.getPayload().isPresent()) {
+        if (token.getPayload().isMissingNode()) {
             return Optional.absent();
         }
 
@@ -80,7 +79,7 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
 
         Map<String, String> payload = new HashMap<>();
         for (String field: payloadFields) {
-            payload.put(field, token.getPayload().get().path(field).asText());
+            payload.put(field, token.getPayload().path(field).asText());
         }
         params.put(JwtMatcherExtension.PARAM_NAME_PAYLOAD, payload);
 
