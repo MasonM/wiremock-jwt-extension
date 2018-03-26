@@ -2,8 +2,9 @@ package com.github.masonm;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.MockRequest;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
+
+import java.util.HashMap;
 
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.junit.Assert.assertFalse;
@@ -90,7 +91,9 @@ public class JwtMatcherExtensionTest {
         final Parameters requestAndBodyParmaters = Parameters.from(TEST_AUTH_HEADER.getHeaderMatchParams());
         requestAndBodyParmaters.put(
             "request",
-            ImmutableMap.of("url", "/test_url")
+            new HashMap<String, String>() {{
+                put("url", "/test_url");
+            }}
         );
 
         MockRequest testRequest = mockRequest()

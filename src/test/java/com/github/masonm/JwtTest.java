@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.common.Encoding;
-import com.google.common.collect.ImmutableList;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -13,7 +15,7 @@ import static org.junit.Assert.assertThat;
 public class JwtTest {
     @Test
     public void constructorUsesAbsentForInvalidTokens() {
-        final ImmutableList<String> testValues = ImmutableList.of(
+        final List<String> testValues = Arrays.asList(
             "",
             ".",
             "too.few_segments",

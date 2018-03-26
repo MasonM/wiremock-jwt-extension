@@ -9,7 +9,6 @@ import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.base.Optional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,27 +47,27 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
             return stubMapping;
         }
 
-        Optional<Parameters> requestMatcherParameters = getRequestMatcherParameter(
+        Parameters requestMatcherParameters = getRequestMatcherParameter(
             new Jwt(authHeader),
             parameters.get(PAYLOAD_FIELDS)
         );
 
-        if (!requestMatcherParameters.isPresent()) {
+        if (requestMatcherParameters == null) {
             return stubMapping;
         }
 
         Map<String, Object> encodedRequest = Json.objectToMap(stubMapping.getRequest());
         encodedRequest.remove("headers");
-        requestMatcherParameters.get().put("request", encodedRequest);
+        requestMatcherParameters.put("request", encodedRequest);
 
-        RequestPattern newRequest = new RequestPatternBuilder(JwtMatcherExtension.NAME, requestMatcherParameters.get()).build();
+        RequestPattern newRequest = new RequestPatternBuilder(JwtMatcherExtension.NAME, requestMatcherParameters).build();
         stubMapping.setRequest(newRequest);
         return stubMapping;
     }
 
-    private Optional<Parameters> getRequestMatcherParameter(Jwt token, Object payloadParamValue) {
+    private Parameters getRequestMatcherParameter(Jwt token, Object payloadParamValue) {
         if (token.getPayload().isMissingNode()) {
-            return Optional.absent();
+            return null;
         }
 
         Iterable<String> payloadFields = Json.getObjectMapper().convertValue(
@@ -83,6 +82,6 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
         }
         params.put(JwtMatcherExtension.PARAM_NAME_PAYLOAD, payload);
 
-        return Optional.of(params);
+        return params;
     }
 }

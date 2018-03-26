@@ -5,10 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.google.common.base.Splitter;
 
 import java.io.IOException;
-import java.util.List;
 
 public class Jwt {
     private final JsonNode header;
@@ -18,13 +16,13 @@ public class Jwt {
         if (token.startsWith("Bearer ")) {
             token = token.substring("Bearer ".length());
         }
-        List<String> parts = Splitter.on(".").splitToList(token);
-        if (parts.size() != 3) {
+        String[] parts = token.split("\\.");
+        if (parts.length != 3) {
             this.header  = MissingNode.getInstance();
             this.payload = MissingNode.getInstance();
         } else {
-            this.header = parsePart(parts.get(0));
-            this.payload = parsePart(parts.get(1));
+            this.header = parsePart(parts[0]);
+            this.payload = parsePart(parts[1]);
         }
     }
 

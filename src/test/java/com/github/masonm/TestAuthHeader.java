@@ -2,7 +2,8 @@ package com.github.masonm;
 
 import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.google.common.collect.ImmutableMap;
+
+import java.util.HashMap;
 
 /**
  * Generates a Authorization header string for testing purposes, and
@@ -33,22 +34,24 @@ public class TestAuthHeader {
 
     public Parameters getHeaderMatchParams() {
         return Parameters.one(
-            JwtMatcherExtension.PARAM_NAME_HEADER, ImmutableMap.of(headerPrefix + "_key", headerPrefix + "_value")
+            JwtMatcherExtension.PARAM_NAME_HEADER, new HashMap<String, String>() {{
+                put(headerPrefix + "_key", headerPrefix + "_value");
+            }}
         );
     }
 
     public Parameters getPayloadMatchParameters() {
         return Parameters.one(
-            JwtMatcherExtension.PARAM_NAME_PAYLOAD, ImmutableMap.of(payloadPrefix + "_key", payloadPrefix + "_value")
+            JwtMatcherExtension.PARAM_NAME_PAYLOAD, new HashMap<String, String>() {{
+                put(payloadPrefix + "_key", payloadPrefix + "_value");
+            }}
         );
     }
 
     public Parameters getBothMatchParameters() {
-        return Parameters.from(
-            ImmutableMap.<String, Object>builder()
-                .putAll(getHeaderMatchParams())
-                .putAll(getPayloadMatchParameters())
-                .build()
-        );
+        return new Parameters() {{
+            putAll(getHeaderMatchParams());
+            putAll(getPayloadMatchParameters());
+        }};
     }
 }
