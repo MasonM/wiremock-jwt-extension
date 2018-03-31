@@ -16,13 +16,13 @@ These will be placed in `build/libs/`.
 
 Standalone server:
 ```sh
-java -jar build/libs/wiremock-jwt-extension-0.1a-standalone.jar
+java -jar build/libs/wiremock-jwt-extension-0.2-standalone.jar
 ```
 
 With WireMock standalone JAR:
 ```sh
 java \
-        -cp wiremock-standalone.jar:build/libs/wiremock-jwt-extension-0.1a.jar \
+        -cp wiremock-standalone.jar:build/libs/wiremock-jwt-extension-0.2.jar \
         com.github.tomakehurst.wiremock.standalone.WireMockServerRunner \
         --extensions="com.github.masonm.JwtMatcherExtension,com.github.masonm.JwtStubMappingTransformer"
 ```
@@ -40,19 +40,20 @@ When used as a "customerMatcher" via JSON, use the name "jwt-matcher". Accepted 
 * `payload`: Key-value map of payload fields to match, e.g. `{ "admin": true }`
 * `request`: Any additional request matchers.
 
-Example:
-```json
+Here's a cURL command to create an example stub mapping:
+```sh
+curl -d@- http://localhost:8080/__admin/mappings <<-EOD
 {
     "request" : {
         "customMatcher" : {
             "name" : "jwt-matcher",
             "parameters" : {
                 "header" : {
-                    "some_header_key" : "some header value",
-                    "another_header_key": "some other value"
+                    "alg" : "HS256",
+                    "typ": "JWT"
                 },
                 "payload": {
-                    "name" : "test_name"
+                    "name" : "John Doe"
                 },
                 "request" : {
                     "url" : "/some_url",
@@ -62,9 +63,16 @@ Example:
         }
     },
     "response" : {
-        "status" : 200
+        "status" : 200,
+        "body": "success"
     }
 }
+EOD
+```
+
+Example request that matches the above stub mapping:
+```sh
+curl -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.XbPfbIHMI6arZ3Y922BhjWgQzWXcXNrz0ogtVhfEd2o' http://localhost:8080/some_url
 ```
 
 # Stub mapping transformer usage

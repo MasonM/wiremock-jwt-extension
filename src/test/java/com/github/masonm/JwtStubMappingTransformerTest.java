@@ -5,10 +5,10 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.CustomMatcherDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -70,15 +70,13 @@ public class JwtStubMappingTransformerTest {
         assertThat(jwtMatcher, is(notNullValue()));
         assertThat(jwtMatcher.getName(), is(JwtMatcherExtension.NAME));
 
-        final Map<String, Object> expectedParameters = new HashMap<String, Object>() {{
-            put(JwtMatcherExtension.PARAM_NAME_PAYLOAD, new HashMap<String, String>() {{
-                put("matched_key", "matched_value");
-            }});
-            put(JwtMatcherExtension.PARAM_NAME_REQUEST, new HashMap<String, String>() {{
-                put("url", "/");
-                put("method", "GET");
-            }});
-        }};
+       final Map<String, Object> expectedParameters = ImmutableMap.of(
+            JwtMatcherExtension.PARAM_NAME_PAYLOAD, (Object) ImmutableMap.of("matched_key", "matched_value"),
+            JwtMatcherExtension.PARAM_NAME_REQUEST, (Object) ImmutableMap.of(
+                "url", "/",
+                "method", "GET"
+            )
+        );
         assertThat(jwtMatcher.getParameters(), is(expectedParameters));
     }
 

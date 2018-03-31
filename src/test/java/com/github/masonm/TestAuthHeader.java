@@ -1,9 +1,8 @@
 package com.github.masonm;
 
-import com.github.tomakehurst.wiremock.common.Encoding;
+import org.apache.commons.codec.binary.Base64;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-
-import java.util.HashMap;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Generates a Authorization header string for testing purposes, and
@@ -20,12 +19,12 @@ public class TestAuthHeader {
 
     public String getEncodedHeader() {
         final String headerJson = "{ \"" + headerPrefix + "_key\": \"" + headerPrefix + "_value\" }";
-        return Encoding.encodeBase64(headerJson.getBytes());
+        return Base64.encodeBase64URLSafeString(headerJson.getBytes());
     }
 
     public String getEncodedPayload() {
         final String payloadJson = "{ \"" + payloadPrefix + "_key\": \"" + payloadPrefix + "_value\" }";
-        return Encoding.encodeBase64(payloadJson.getBytes());
+        return Base64.encodeBase64URLSafeString(payloadJson.getBytes());
     }
 
     public String toString() {
@@ -34,17 +33,13 @@ public class TestAuthHeader {
 
     public Parameters getHeaderMatchParams() {
         return Parameters.one(
-            JwtMatcherExtension.PARAM_NAME_HEADER, new HashMap<String, String>() {{
-                put(headerPrefix + "_key", headerPrefix + "_value");
-            }}
+            JwtMatcherExtension.PARAM_NAME_HEADER, ImmutableMap.of(headerPrefix + "_key", headerPrefix + "_value")
         );
     }
 
     public Parameters getPayloadMatchParameters() {
         return Parameters.one(
-            JwtMatcherExtension.PARAM_NAME_PAYLOAD, new HashMap<String, String>() {{
-                put(payloadPrefix + "_key", payloadPrefix + "_value");
-            }}
+            JwtMatcherExtension.PARAM_NAME_PAYLOAD, ImmutableMap.of(payloadPrefix + "_key", payloadPrefix + "_value")
         );
     }
 

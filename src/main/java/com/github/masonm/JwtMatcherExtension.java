@@ -2,7 +2,7 @@ package com.github.masonm;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.tomakehurst.wiremock.common.Json;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
@@ -33,8 +33,8 @@ public class JwtMatcherExtension extends RequestMatcherExtension {
         }
 
         if (parameters.containsKey(PARAM_NAME_REQUEST)) {
-            Map<String, Object> encodedRequest = Json.objectToMap(parameters.get(PARAM_NAME_REQUEST));
-            RequestPattern requestPattern = Json.mapToObject(encodedRequest, RequestPattern.class);
+            Parameters requestParameters = Parameters.of(parameters.get(PARAM_NAME_REQUEST));
+            RequestPattern requestPattern = requestParameters.as(RequestPattern.class);
             if (!requestPattern.match(request).isExactMatch()) {
                 return noMatch();
             }
@@ -65,7 +65,7 @@ public class JwtMatcherExtension extends RequestMatcherExtension {
     }
 
     private boolean matchParams(JsonNode tokenValues, Object parameters) {
-        Map<String, String> parameterMap = Json.getObjectMapper().convertValue(
+        Map<String, String> parameterMap = new ObjectMapper().convertValue(
             parameters,
             new TypeReference<Map<String, Object>>() {}
         );

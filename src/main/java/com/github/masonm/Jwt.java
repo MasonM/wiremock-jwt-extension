@@ -1,10 +1,9 @@
 package com.github.masonm;
 
+import org.apache.commons.codec.binary.Base64;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.MissingNode;
-import com.github.tomakehurst.wiremock.common.Encoding;
-import com.github.tomakehurst.wiremock.common.Json;
 
 import java.io.IOException;
 
@@ -17,7 +16,7 @@ public class Jwt {
             token = token.substring("Bearer ".length());
         }
         String[] parts = token.split("\\.");
-        if (parts.length != 3) {
+        if (parts.length < 2) {
             this.header  = MissingNode.getInstance();
             this.payload = MissingNode.getInstance();
         } else {
@@ -28,15 +27,14 @@ public class Jwt {
 
     private JsonNode parsePart(String part) {
         byte[] decodedJwtBody;
-
         try {
-            decodedJwtBody = Encoding.decodeBase64(part);
+            decodedJwtBody = Base64.decodeBase64(part);
         } catch (IllegalArgumentException ex) {
             return MissingNode.getInstance();
         }
 
         try {
-            ObjectMapper mapper = Json.getObjectMapper();
+            ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(decodedJwtBody, JsonNode.class);
         } catch (IOException ioe) {
             return MissingNode.getInstance();

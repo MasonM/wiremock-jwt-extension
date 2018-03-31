@@ -1,8 +1,9 @@
 package com.github.masonm;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
@@ -56,7 +57,9 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
             return stubMapping;
         }
 
-        Map<String, Object> encodedRequest = Json.objectToMap(stubMapping.getRequest());
+        Map<String, Object> encodedRequest = new ObjectMapper()
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                .convertValue(stubMapping.getRequest(), new TypeReference<Map<String, Object>>() {});
         encodedRequest.remove("headers");
         requestMatcherParameters.put("request", encodedRequest);
 
@@ -70,7 +73,7 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
             return null;
         }
 
-        Iterable<String> payloadFields = Json.getObjectMapper().convertValue(
+        Iterable<String> payloadFields = new ObjectMapper().convertValue(
             payloadParamValue,
             new TypeReference<Iterable<String>>() {}
         );
