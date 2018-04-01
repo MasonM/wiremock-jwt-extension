@@ -1,16 +1,22 @@
 package com.github.masonm;
 
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.CustomMatcherDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.util.Arrays;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -70,14 +76,59 @@ public class JwtStubMappingTransformerTest {
         assertThat(jwtMatcher, is(notNullValue()));
         assertThat(jwtMatcher.getName(), is(JwtMatcherExtension.NAME));
 
-       final Map<String, Object> expectedParameters = ImmutableMap.of(
-            JwtMatcherExtension.PARAM_NAME_PAYLOAD, (Object) ImmutableMap.of("matched_key", "matched_value"),
-            JwtMatcherExtension.PARAM_NAME_REQUEST, (Object) ImmutableMap.of(
-                "url", "/",
-                "method", "GET"
-            )
+        final RequestPattern expectedRequestPattern = new RequestPatternBuilder(RequestMethod.GET, WireMock.urlEqualTo("/")).build();
+        final Map<String, Object> expectedParameters = ImmutableMap.of(
+            JwtMatcherExtension.PARAM_NAME_PAYLOAD, ImmutableMap.of("matched_key", "matched_value"),
+            JwtMatcherExtension.PARAM_NAME_REQUEST, expectedRequestPattern
         );
         assertThat(jwtMatcher.getParameters(), is(expectedParameters));
+    }
+
+    @Test
+    public void acceptanceTestReturnsModifiedMappingWhenMatchingValidPayloadField() {
+        final TestAuthHeader testAuthHeader = new TestAuthHeader("doesnt_matter", "matched");
+        StubMapping testMapping = WireMock
+            .get("/")
+            .withHeader("Host", WireMock.equalTo("www.example.com"))
+            .withHeader("Authorization", WireMock.equalTo(testAuthHeader.toString()))
+            .willReturn(ResponseDefinitionBuilder.okForJson("foo"))
+            .build();
+        final Parameters payloadMatchParams = Parameters.one(
+            JwtStubMappingTransformer.PAYLOAD_FIELDS,
+            Arrays.asList("matched_key")
+        );
+
+        StubMapping transformedMapping = TRANSFORMER.transform(testMapping, null, payloadMatchParams);
+        final String stubMappingJson = Json.write(transformedMapping);
+        final String EXPECTED_STUB_MAPPING_JSON =
+            "{\n" +
+                "\"request\": {\n" +
+                    "\"method\": \"ANY\",\n" +
+                    "\"customMatcher\": {\n" +
+                        "\"name\": \"" + JwtMatcherExtension.NAME + "\",\n" +
+                        "\"parameters\": {\n" +
+                            "\"request\": {\n" +
+                                "\"url\": \"/\",\n" +
+                                "\"method\": \"GET\",\n" +
+                                "\"headers\": {\n" +
+                                    "\"Host\": { \"equalTo\": \"www.example.com\" }\n" +
+                                "}\n" +
+                            "},\n" +
+                            "\"payload\": {\n" +
+                                "\"matched_key\": \"matched_value\"\n" +
+                            "}\n" +
+                        "}\n" +
+                    "}\n" +
+                "},\n" +
+                "\"response\": {\n" +
+                    "\"status\": 200,\n" +
+                    "\"body\": \"\\\"foo\\\"\",\n" +
+                    "\"headers\": {\n" +
+                        "\"Content-Type\": \"application/json\"\n" +
+                    "}\n" +
+                "}\n" +
+            "}";
+        assertThat(stubMappingJson, equalToJson(EXPECTED_STUB_MAPPING_JSON, JSONCompareMode.STRICT_ORDER));
     }
 
     private Parameters getParams(String ...payloadFields) {

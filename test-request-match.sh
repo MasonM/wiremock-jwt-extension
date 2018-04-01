@@ -1,18 +1,13 @@
 #!/bin/bash
 
-echo "Launching Wiremock and setting up proxying"
-java -jar build/libs/wiremock*standalone*.jar 1>/dev/null 2>/dev/null &
-WIREMOCK_PID=$!
-trap "kill $WIREMOCK_PID" exit
+set -e
 
-echo -n "Waiting for Wiremock to start up."
-until $(curl --output /dev/null --silent --head http://localhost:8080); do
-        echo -n '.'
-        sleep 1
-done
+source test-helpers.sh
+WIREMOCK_BASE_URL=http://localhost:8080
 
+launchWiremock
 
-echo -e "done\nCreating proxy mapping"
+echo -e "done\n\nCreating proxy mapping"
 curl -d@- http://localhost:8080/__admin/mappings <<-EOD
 {
     "request" : {
@@ -40,5 +35,5 @@ curl -d@- http://localhost:8080/__admin/mappings <<-EOD
 }
 EOD
 
-echo -e "done\nMaking request"
+echo -e "done\n\nMaking request"
 curl -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.XbPfbIHMI6arZ3Y922BhjWgQzWXcXNrz0ogtVhfEd2o' http://localhost:8080/some_url

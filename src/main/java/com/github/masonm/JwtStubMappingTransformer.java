@@ -1,6 +1,5 @@
 package com.github.masonm;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.common.FileSource;
@@ -12,6 +11,7 @@ import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class JwtStubMappingTransformer extends StubMappingTransformer {
@@ -57,15 +57,34 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
             return stubMapping;
         }
 
-        Map<String, Object> encodedRequest = new ObjectMapper()
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                .convertValue(stubMapping.getRequest(), new TypeReference<Map<String, Object>>() {});
-        encodedRequest.remove("headers");
-        requestMatcherParameters.put("request", encodedRequest);
+        requestMatcherParameters.put("request", this.getInnerRequestPattern(stubMapping.getRequest()));
 
         RequestPattern newRequest = new RequestPatternBuilder(JwtMatcherExtension.NAME, requestMatcherParameters).build();
         stubMapping.setRequest(newRequest);
         return stubMapping;
+    }
+
+    private RequestPattern getInnerRequestPattern(RequestPattern outer) {
+        Map<String, MultiValuePattern> newHeaders = null;
+        if (outer.getHeaders() != null) {
+            newHeaders = new LinkedHashMap<>(outer.getHeaders());
+            newHeaders.remove("Authorization");
+            if (newHeaders.isEmpty()) {
+                newHeaders = null;
+            }
+        }
+
+        return new RequestPattern(
+            outer.getUrlMatcher(),
+            outer.getMethod(),
+            newHeaders,
+            outer.getQueryParameters(),
+            outer.getCookies(),
+            outer.getBasicAuthCredentials(),
+            outer.getBodyPatterns(),
+            null,
+            outer.getMultipartPatterns()
+        );
     }
 
     private Parameters getRequestMatcherParameter(Jwt token, Object payloadParamValue) {
