@@ -13,6 +13,9 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class JwtTest {
+    public static final String UNSECURED_TEST_TOKEN = "eyJhbGciOiJub25lIn0.eyJuYW1lIjoiTWFzb24gTWFsb25lIn0.";
+    public static final String SECURED_TEST_HEADER = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ik1hc29uIE1hbG9uZSIsImlhdCI6MTUxNjIzOTAyMn0.MAzWSeaKvOgZb8_uasPYK681tF7PfC0E2AmfDsLfefs";
+
     @Test
     public void constructorUsesAbsentForInvalidTokens() {
         final List<String> testValues = Arrays.asList(
@@ -21,6 +24,7 @@ public class JwtTest {
             "too.few_segments",
             "invalid.!!!!.base64",
             "too.many.segments.here",
+            "Bearer a.b.c ",
             Encoding.encodeBase64("invalidJson".getBytes()) + "." + Encoding.encodeBase64("invalidJson".getBytes()) + ".foobar"
         );
         for (String testValue: testValues) {
@@ -32,10 +36,22 @@ public class JwtTest {
     }
 
     @Test
-    public void withUnsecuredValidToken() {
-        final String TEST_TOKEN = "eyJhbGciOiJub25lIn0.eyJuYW1lIjoiTWFzb24gTWFsb25lIn0.";
+    public void fromAuthHeader() {
+        final List<String> testValues = Arrays.asList(
+            "Bearer " + UNSECURED_TEST_TOKEN,
+            "JWT " + UNSECURED_TEST_TOKEN,
+            UNSECURED_TEST_TOKEN
+        );
+        for (String testValue: testValues) {
+            Jwt token = Jwt.fromAuthHeader(testValue);
+            assertThat(token.getHeader().isMissingNode(), is(false));
+            assertThat(token.getPayload().isMissingNode(), is(false));
+        }
+    }
 
-        final Jwt token = new Jwt(TEST_TOKEN);
+    @Test
+    public void withUnsecuredValidToken() {
+        final Jwt token = new Jwt(UNSECURED_TEST_TOKEN);
         assertThat(token.getHeader().isMissingNode(), is(false));
         assertThat(token.getPayload().isMissingNode(), is(false));
 
@@ -50,9 +66,7 @@ public class JwtTest {
 
     @Test
     public void withSecuredValidToken() {
-        final String TEST_HEADER = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ik1hc29uIE1hbG9uZSIsImlhdCI6MTUxNjIzOTAyMn0.MAzWSeaKvOgZb8_uasPYK681tF7PfC0E2AmfDsLfefs";
-
-        final Jwt token = new Jwt(TEST_HEADER);
+        final Jwt token = new Jwt(SECURED_TEST_HEADER);
         assertThat(token.getHeader().isMissingNode(), is(false));
         assertThat(token.getPayload().isMissingNode(), is(false));
 

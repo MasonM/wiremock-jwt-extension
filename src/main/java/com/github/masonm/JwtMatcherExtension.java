@@ -41,11 +41,11 @@ public class JwtMatcherExtension extends RequestMatcherExtension {
         }
 
         String authString = request.getHeader("Authorization");
-        if (authString == null || authString.isEmpty() || !authString.startsWith("Bearer ")) {
+        if (authString == null || authString.isEmpty()) {
             return noMatch();
         }
 
-        Jwt token = new Jwt(authString);
+        Jwt token = Jwt.fromAuthHeader(authString);
 
         if (
             parameters.containsKey(PARAM_NAME_HEADER) &&

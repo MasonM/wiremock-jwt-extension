@@ -44,12 +44,8 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
         }
 
         String authHeader = requestHeaders.get("Authorization").getExpected();
-        if (!authHeader.startsWith("Bearer ")) {
-            return stubMapping;
-        }
-
         Parameters requestMatcherParameters = getRequestMatcherParameter(
-            new Jwt(authHeader),
+            Jwt.fromAuthHeader(authHeader),
             parameters.get(PAYLOAD_FIELDS)
         );
 

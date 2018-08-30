@@ -30,16 +30,6 @@ public class JwtMatcherExtensionTest {
     }
 
     @Test
-    public void withValidParametersAndRequestWithBasicAuthorizationType() {
-        String authHeader = "Basic " + TEST_AUTH_HEADER.getEncodedHeader() + "." + TEST_AUTH_HEADER.getEncodedPayload() + ".f00";
-        final MockRequest request = mockRequest().header("Authorization", authHeader);
-
-        assertFalse(isHeaderExactMatch(request, TEST_AUTH_HEADER));
-        assertFalse(isPayloadExactMatch(request, TEST_AUTH_HEADER));
-        assertFalse(isBothExactMatch(request, TEST_AUTH_HEADER));
-    }
-
-    @Test
     public void withValidParametersAndRequestWithoutAuthorization() {
         final MockRequest request = mockRequest();
         assertFalse(isHeaderExactMatch(request, TEST_AUTH_HEADER));

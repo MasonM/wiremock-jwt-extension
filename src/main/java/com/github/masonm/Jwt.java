@@ -12,9 +12,6 @@ public class Jwt {
     private final JsonNode payload;
 
     public Jwt(String token) {
-        if (token.startsWith("Bearer ")) {
-            token = token.substring("Bearer ".length());
-        }
         String[] parts = token.split("\\.");
         if (parts.length < 2) {
             this.header  = MissingNode.getInstance();
@@ -22,6 +19,19 @@ public class Jwt {
         } else {
             this.header = parsePart(parts[0]);
             this.payload = parsePart(parts[1]);
+        }
+    }
+
+    public static Jwt fromAuthHeader(String authHeader) {
+        // Per RFC7235, the syntax for the credentials in the Authorization header is:
+        //     credentials = auth-scheme [ 1*SP ( token68 / #auth-param ) ]
+        // where auth-scheme is usually "Bearer" for JWT, but some APIs use "JWT" instead.
+        int separatorIndex = authHeader.indexOf(" ");
+        if (separatorIndex == -1) {
+            // Missing auth-scheme. Not standard, but try parsing it anyway.
+            return new Jwt(authHeader);
+        } else {
+            return new Jwt(authHeader.substring(separatorIndex + 1));
         }
     }
 
