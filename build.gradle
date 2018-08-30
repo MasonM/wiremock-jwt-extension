@@ -12,7 +12,8 @@ archivesBaseName = 'wiremock-jwt-extension'
 version = '0.4'
 
 repositories {
-    mavenCentral()
+    // Canonical URLs at https://central.sonatype.org/pages/consumers.html
+    maven { url 'https://repo1.maven.org/maven2' }
 }
 
 jar.finalizedBy shadowJar
