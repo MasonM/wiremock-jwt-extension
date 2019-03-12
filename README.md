@@ -3,45 +3,47 @@
 [![Build Status](https://travis-ci.org/MasonM/wiremock-jwt-extension.svg?branch=master)](https://travis-ci.org/MasonM/wiremock-jwt-extension)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.masonm/wiremock-jwt-extension/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.masonm/wiremock-jwt-extension)
 
-wiremock-jwt-extension consists of a [request matcher extension](http://wiremock.org/docs/extending-wiremock/#custom-request-matchers) and a [stub mapping transformer extension](http://wiremock.org/docs/record-playback/#transforming-generated-stubs) for [WireMock](http://wiremock.org).
+wiremock-jwt-extension consists of two extensions for [WireMock](http://wiremock.org): a [request matcher extension](http://wiremock.org/docs/extending-wiremock/#custom-request-matchers) and a [stub mapping transformer extension](http://wiremock.org/docs/record-playback/#transforming-generated-stubs).
 
-The request matcher extracts and matches against fields in the "payload" or "header" portion of JWT tokens in the  "Authorization" header of a request. The stub mapping transformer can transform recorded stub mappings to use the request matcher if there exists a JWT token in the "Authorization" header. JWE (JSON Web Encryption) is not currently supported, and no signature verification is done.
+The request matcher extracts JWT tokens from incoming requests and matches against the "payload" and/or "header" portions. The stub mapping transformer can transform recorded stub mappings to use the request matcher if there exists a JWT token in the "Authorization" header.
 
-# Building
-
-Run `gradle jar` to build the JAR without WireMock or `gradle standalone` to build a standalone JAR.
-These will be placed in `build/libs/`.
+JWE (JSON Web Encryption) and signature verification are not currently supported. Patches welcome!
 
 # Running
 
-Standalone server:
-```sh
-java -jar build/libs/wiremock-jwt-extension-0.4-standalone.jar
-```
+There are three ways of running the extension:
 
-With WireMock standalone JAR:
-```sh
-wget -nc http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.14.0/wiremock-standalone-2.14.0.jar
-java \
-        -cp wiremock-standalone-2.14.0.jar:build/libs/wiremock-jwt-extension-0.4.jar \
-        com.github.tomakehurst.wiremock.standalone.WireMockServerRunner \
-        --extensions="com.github.masonm.JwtMatcherExtension,com.github.masonm.JwtStubMappingTransformer"
-```
+1. Standalone, e.g.
 
-Programmatically in Java:
-```java
-new WireMockServer(wireMockConfig()
-    .extensions("com.github.masonm.JwtMatcherExtension", "com.github.masonm.JwtStubMappingTransformer"))
-```
+    ```sh
+    java -jar build/libs/wiremock-jwt-extension-0.4-standalone.jar
+    ```
+    
+2. As an extension of the WireMock standalone JAR, e.g.
+
+    ```sh
+    wget -nc http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.14.0/wiremock-standalone-2.14.0.jar
+    java \
+            -cp wiremock-standalone-2.14.0.jar:build/libs/wiremock-jwt-extension-0.4.jar \
+            com.github.tomakehurst.wiremock.standalone.WireMockServerRunner \
+            --extensions="com.github.masonm.JwtMatcherExtension,com.github.masonm.JwtStubMappingTransformer"
+    ```
+
+3. Programmatically in Java, e.g.
+
+    ```java
+    new WireMockServer(wireMockConfig()
+        .extensions("com.github.masonm.JwtMatcherExtension", "com.github.masonm.JwtStubMappingTransformer"))
+    ```
 
 # Request matcher usage
 
-When used as a "customerMatcher" via JSON, use the name "jwt-matcher". Accepted parameters:
+The extension accepts the following parameters:
 * `header`: Key-value map of header fields to match, e.g. `{ "alg": "HS256" }`
 * `payload`: Key-value map of payload fields to match, e.g. `{ "admin": true }`
-* `request`: Any additional request matchers.
+* `request`: Any additional request matchers. This is basically a workaround for the inability to compose extensions in WireMock.
 
-Here's a cURL command to create an example stub mapping:
+When using the API, make sure to set the `"name"` field of the customMatcher to `"jwt-matcher"`.  Here's an example cURL command that creates a stub mapping with the request matcher:
 ```sh
 curl -d@- http://localhost:8080/__admin/mappings <<-EOD
 {
@@ -87,3 +89,8 @@ The transformer has the name "jwt-stub-mapping-transformer" and accepts a list o
     }
 }
 ```
+
+# Building
+
+Run `gradle jar` to build the JAR without WireMock or `gradle standalone` to build a standalone JAR.
+These will be placed in `build/libs/`.
