@@ -13,8 +13,8 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class JwtTest {
-    public static final String UNSECURED_TEST_TOKEN = "eyJhbGciOiJub25lIn0.eyJuYW1lIjoiTWFzb24gTWFsb25lIn0.";
-    public static final String SECURED_TEST_HEADER = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ik1hc29uIE1hbG9uZSIsImlhdCI6MTUxNjIzOTAyMn0.MAzWSeaKvOgZb8_uasPYK681tF7PfC0E2AmfDsLfefs";
+    private static final String UNSECURED_TEST_TOKEN = "eyJhbGciOiJub25lIn0.eyJuYW1lIjoiTWFzb24gTWFsb25lIn0.";
+    private static final String SECURED_TEST_HEADER = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ik1hc29uIE1hbG9uZSIsImlhdCI6MTUxNjIzOTAyMn0.MAzWSeaKvOgZb8_uasPYK681tF7PfC0E2AmfDsLfefs";
 
     @Test
     public void constructorUsesAbsentForInvalidTokens() {

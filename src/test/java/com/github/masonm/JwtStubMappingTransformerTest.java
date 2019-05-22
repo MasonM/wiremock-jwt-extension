@@ -60,7 +60,10 @@ public class JwtStubMappingTransformerTest {
 
     @Test
     public void returnsModifiedMappingWhenMatchingValidPayloadField() {
-        final TestAuthHeader testAuthHeader = new TestAuthHeader("doesnt_matter", "matched");
+        final TestAuthHeader testAuthHeader = new TestAuthHeader(
+            "doesnt_matter",
+            "{ \"matched_key\": \"matched_value\" }"
+        );
         StubMapping testMapping = WireMock
             .get("/")
             .withHeader("Authorization", WireMock.equalTo(testAuthHeader.toString()))
@@ -86,7 +89,10 @@ public class JwtStubMappingTransformerTest {
 
     @Test
     public void acceptanceTestReturnsModifiedMappingWhenMatchingValidPayloadField() {
-        final TestAuthHeader testAuthHeader = new TestAuthHeader("doesnt_matter", "matched");
+        final TestAuthHeader testAuthHeader = new TestAuthHeader(
+            "doesnt_matter",
+            "{ \"matched_key\": \"matched_value\" }"
+        );
         StubMapping testMapping = WireMock
             .get("/")
             .withHeader("Host", WireMock.equalTo("www.example.com"))
