@@ -40,7 +40,7 @@ There are three ways of running the extension:
 
 The extension accepts the following parameters:
 * `header`: Key-value map of header fields to match, e.g. `{ "alg": "HS256" }`
-* `payload`: Key-value map of payload fields to match, e.g. `{ "admin": true }`
+* `payload`: Key-value map of payload fields to match, e.g. `{ "admin": true }`. If the value is an array (e.g. `{ "aud": ["aud1", "aud2"] }`, it will be matched exactly.
 * `request`: Any additional request matchers. This is basically a workaround for the inability to compose extensions in WireMock.
 
 When using the API, make sure to set the `"name"` field of the customMatcher to `"jwt-matcher"`.  Here's an example cURL command that creates a stub mapping with the request matcher:
@@ -56,7 +56,8 @@ curl -d@- http://localhost:8080/__admin/mappings <<-EOD
                     "typ": "JWT"
                 },
                 "payload": {
-                    "name" : "John Doe"
+                    "name" : "John Doe",
+                    "aud": ["aud1", "aud2"]
                 },
                 "request" : {
                     "url" : "/some_url",
@@ -75,7 +76,7 @@ EOD
 
 Example request that matches the above stub mapping:
 ```sh
-curl -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.XbPfbIHMI6arZ3Y922BhjWgQzWXcXNrz0ogtVhfEd2o' http://localhost:8080/some_url
+curl -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJhdWQiOlsiYXVkMSIsImF1ZDIiXX0.h49E7AnYrJpttdEoi4GmoZUCtg6GBSHTSjUcDGnbjRI' http://localhost:8080/some_url
 ```
 
 # Stub mapping transformer usage
