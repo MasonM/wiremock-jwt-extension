@@ -19,7 +19,8 @@ curl -d@- http://localhost:8080/__admin/mappings <<-EOD
                     "typ": "JWT"
                 },
                 "payload": {
-                    "name" : "John Doe"
+                    "name" : "John Doe",
+                    "aud": ["foo", "bar"]
                 },
                 "request" : {
                     "url" : "/some_url",
@@ -36,4 +37,4 @@ curl -d@- http://localhost:8080/__admin/mappings <<-EOD
 EOD
 
 echo -e "done\n\nMaking request"
-curl -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.XbPfbIHMI6arZ3Y922BhjWgQzWXcXNrz0ogtVhfEd2o' http://localhost:8080/some_url
+curl -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJhdWQiOlsiZm9vIiwiYmFyIl19.aqa_OxjpGtC4nHVCUlCqmiNHOAYK6VFyq2HFsOOmJIY' http://localhost:8080/some_url

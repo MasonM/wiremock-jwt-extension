@@ -65,12 +65,12 @@ public class JwtMatcherExtension extends RequestMatcherExtension {
     }
 
     private boolean matchParams(JsonNode tokenValues, Object parameters) {
-        Map<String, String> parameterMap = new ObjectMapper().convertValue(
+        Map<String, JsonNode> parameterMap = new ObjectMapper().convertValue(
             parameters,
-            new TypeReference<Map<String, Object>>() {}
+            new TypeReference<Map<String, JsonNode>>() {}
         );
-        for (Map.Entry<String, String> entry: parameterMap.entrySet()) {
-            String tokenValue = tokenValues.path(entry.getKey()).asText();
+        for (Map.Entry<String, JsonNode> entry: parameterMap.entrySet()) {
+            JsonNode tokenValue = tokenValues.path(entry.getKey());
             if (!Objects.equals(tokenValue, entry.getValue())) {
                 return false;
             }
