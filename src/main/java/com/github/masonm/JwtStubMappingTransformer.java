@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.google.common.net.HttpHeaders.AUTHORIZATION;
+
 public class JwtStubMappingTransformer extends StubMappingTransformer {
     public static final String PAYLOAD_FIELDS = "payloadFields";
 
@@ -39,11 +41,11 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
         }
 
         Map<String, MultiValuePattern> requestHeaders = stubMapping.getRequest().getHeaders();
-        if (requestHeaders == null || !requestHeaders.containsKey("Authorization")) {
+        if (requestHeaders == null || !requestHeaders.containsKey(AUTHORIZATION)) {
             return stubMapping;
         }
 
-        String authHeader = requestHeaders.get("Authorization").getExpected();
+        String authHeader = requestHeaders.get(AUTHORIZATION).getExpected();
         Parameters requestMatcherParameters = getRequestMatcherParameter(
             Jwt.fromAuthHeader(authHeader),
             parameters.get(PAYLOAD_FIELDS)
@@ -64,7 +66,7 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
         Map<String, MultiValuePattern> newHeaders = null;
         if (outer.getHeaders() != null) {
             newHeaders = new LinkedHashMap<>(outer.getHeaders());
-            newHeaders.remove("Authorization");
+            newHeaders.remove(AUTHORIZATION);
             if (newHeaders.isEmpty()) {
                 newHeaders = null;
             }
