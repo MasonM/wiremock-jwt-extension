@@ -79,6 +79,7 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
             outer.getBasicAuthCredentials(),
             outer.getBodyPatterns(),
             null,
+            null,
             outer.getMultipartPatterns()
         );
     }
