@@ -80,6 +80,9 @@ public class JwtStubMappingTransformerTest {
         assertThat(actualRequestPattern.getCustomMatcher().getParameters(), is(expectedParameters));
 
         final RequestPattern expectedRequestPattern = new RequestPattern(
+                null,
+                null,
+                null,
                 WireMock.urlEqualTo("/"),
                 RequestMethod.POST,
                 null,

@@ -22,9 +22,9 @@ There are three ways of running the extension:
 2. As an extension of the WireMock standalone JAR, e.g.
 
     ```sh
-    wget -nc https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.26.3/wiremock-standalone-2.26.3.jar
+    wget -nc https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.27.2/wiremock-standalone-2.27.2.jar
     java \
-            -cp wiremock-standalone-2.26.3.jar:build/libs/wiremock-jwt-extension-0.6.jar \
+            -cp wiremock-standalone-2.27.2.jar:build/libs/wiremock-jwt-extension-0.6.jar \
             com.github.tomakehurst.wiremock.standalone.WireMockServerRunner \
             --extensions="com.github.masonm.JwtMatcherExtension,com.github.masonm.JwtStubMappingTransformer"
     ```
