@@ -41,13 +41,15 @@ There are three ways of running the extension:
 The extension accepts the following parameters:
 * `header`: Key-value map of header fields to match, e.g. `{ "alg": "HS256" }`
 * `payload`: Key-value map of payload fields to match, e.g. `{ "admin": true }`. If the value is an array (e.g. `{ "aud": ["aud1", "aud2"] }`, it will be matched exactly.
-* `request`: Any additional request matchers. This is basically a workaround for the inability to compose extensions in WireMock.
+* `request`: (legacy) Any additional request matchers. Only for Wiremock versions before 2.20 that lacked support for composing standard and custom matchers.
 
 When using the API, make sure to set the `"name"` field of the customMatcher to `"jwt-matcher"`.  Here's an example cURL command that creates a stub mapping with the request matcher:
 ```sh
 curl -d@- http://localhost:8080/__admin/mappings <<-EOD
 {
     "request" : {
+        "url" : "/some_url",
+        "method" : "GET",
         "customMatcher" : {
             "name" : "jwt-matcher",
             "parameters" : {
@@ -58,10 +60,6 @@ curl -d@- http://localhost:8080/__admin/mappings <<-EOD
                 "payload": {
                     "name" : "John Doe",
                     "aud": ["aud1", "aud2"]
-                },
-                "request" : {
-                    "url" : "/some_url",
-                    "method" : "GET"
                 }
             }
         }

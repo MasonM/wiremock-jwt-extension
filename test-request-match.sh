@@ -11,6 +11,8 @@ echo -e "done\n\nCreating proxy mapping"
 curl -d@- http://localhost:8080/__admin/mappings <<-EOD
 {
     "request" : {
+        "url" : "/some_url",
+        "method" : "GET",
         "customMatcher" : {
             "name" : "jwt-matcher",
             "parameters" : {
@@ -21,10 +23,6 @@ curl -d@- http://localhost:8080/__admin/mappings <<-EOD
                 "payload": {
                     "name" : "John Doe",
                     "aud": ["foo", "bar"]
-                },
-                "request" : {
-                    "url" : "/some_url",
-                    "method" : "GET"
                 }
             }
         }

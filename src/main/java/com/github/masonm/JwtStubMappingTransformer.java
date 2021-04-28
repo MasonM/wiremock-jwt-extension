@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
+import com.github.tomakehurst.wiremock.matching.CustomMatcherDefinition;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 import java.util.HashMap;
@@ -55,14 +55,13 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
             return stubMapping;
         }
 
-        requestMatcherParameters.put("request", this.getInnerRequestPattern(stubMapping.getRequest()));
-
-        RequestPattern newRequest = new RequestPatternBuilder(JwtMatcherExtension.NAME, requestMatcherParameters).build();
+        CustomMatcherDefinition customMatcher = new CustomMatcherDefinition(JwtMatcherExtension.NAME, requestMatcherParameters);
+        RequestPattern newRequest = this.getRequestPattern(stubMapping.getRequest(), customMatcher);
         stubMapping.setRequest(newRequest);
         return stubMapping;
     }
 
-    private RequestPattern getInnerRequestPattern(RequestPattern outer) {
+    private RequestPattern getRequestPattern(RequestPattern outer, CustomMatcherDefinition customMatcher) {
         Map<String, MultiValuePattern> newHeaders = null;
         if (outer.getHeaders() != null) {
             newHeaders = new LinkedHashMap<>(outer.getHeaders());
@@ -80,7 +79,7 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
             outer.getCookies(),
             outer.getBasicAuthCredentials(),
             outer.getBodyPatterns(),
-            null,
+            customMatcher,
             null,
             outer.getMultipartPatterns()
         );

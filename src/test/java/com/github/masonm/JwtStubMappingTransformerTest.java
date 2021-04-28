@@ -5,20 +5,16 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.matching.CustomMatcherDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.util.Arrays;
-import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 public class JwtStubMappingTransformerTest {
@@ -65,7 +61,7 @@ public class JwtStubMappingTransformerTest {
             "{ \"matched_key\": \"matched_value\" }"
         );
         StubMapping testMapping = WireMock
-            .get("/")
+            .post("/")
             .withHeader("Authorization", WireMock.equalTo(testAuthHeader.toString()))
             .build();
         final Parameters payloadMatchParams = Parameters.one(
@@ -74,17 +70,28 @@ public class JwtStubMappingTransformerTest {
         );
 
         StubMapping transformedMapping = TRANSFORMER.transform(testMapping, null, payloadMatchParams);
+        RequestPattern actualRequestPattern = transformedMapping.getRequest();
 
-        final CustomMatcherDefinition jwtMatcher  = transformedMapping.getRequest().getCustomMatcher();
-        assertThat(jwtMatcher, is(notNullValue()));
-        assertThat(jwtMatcher.getName(), is(JwtMatcherExtension.NAME));
-
-        final RequestPattern expectedRequestPattern = new RequestPatternBuilder(RequestMethod.GET, WireMock.urlEqualTo("/")).build();
-        final Map<String, Object> expectedParameters = ImmutableMap.of(
-            JwtMatcherExtension.PARAM_NAME_PAYLOAD, ImmutableMap.of("matched_key", "matched_value"),
-            JwtMatcherExtension.PARAM_NAME_REQUEST, expectedRequestPattern
+        final Parameters expectedParameters = Parameters.one(
+                JwtMatcherExtension.PARAM_NAME_PAYLOAD,
+                ImmutableMap.of("matched_key", "matched_value")
         );
-        assertThat(jwtMatcher.getParameters(), is(expectedParameters));
+        assertThat(actualRequestPattern.getCustomMatcher().getName(), is(JwtMatcherExtension.NAME));
+        assertThat(actualRequestPattern.getCustomMatcher().getParameters(), is(expectedParameters));
+
+        final RequestPattern expectedRequestPattern = new RequestPattern(
+                WireMock.urlEqualTo("/"),
+                RequestMethod.POST,
+                null,
+                null,
+                null,
+                null,
+                null,
+                actualRequestPattern.getCustomMatcher(),
+                null,
+                null
+        );
+        assertThat(actualRequestPattern, is(expectedRequestPattern));
     }
 
     @Test
@@ -109,17 +116,14 @@ public class JwtStubMappingTransformerTest {
         final String EXPECTED_STUB_MAPPING_JSON =
             "{\n" +
                 "\"request\": {\n" +
-                    "\"method\": \"ANY\",\n" +
+                    "\"url\": \"/\",\n" +
+                    "\"method\": \"GET\",\n" +
+                    "\"headers\": {\n" +
+                        "\"Host\": { \"equalTo\": \"www.example.com\" }\n" +
+                    "},\n" +
                     "\"customMatcher\": {\n" +
                         "\"name\": \"" + JwtMatcherExtension.NAME + "\",\n" +
                         "\"parameters\": {\n" +
-                            "\"request\": {\n" +
-                                "\"url\": \"/\",\n" +
-                                "\"method\": \"GET\",\n" +
-                                "\"headers\": {\n" +
-                                    "\"Host\": { \"equalTo\": \"www.example.com\" }\n" +
-                                "}\n" +
-                            "},\n" +
                             "\"payload\": {\n" +
                                 "\"matched_key\": \"matched_value\"\n" +
                             "}\n" +
