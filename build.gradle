@@ -108,8 +108,8 @@ uploadArchives {
 }
 
 dependencies {
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.8.9'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.9'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.3'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.3'
     compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
 
     shadow group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'
