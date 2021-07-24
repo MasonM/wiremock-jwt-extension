@@ -30,7 +30,7 @@ public class JwtTest {
         for (String testValue: testValues) {
             Jwt token = new Jwt(testValue);
             String errMsg = "Failed with value '" + testValue + "'";
-            assertThat(errMsg, token.getHeader().isMissingNode(), is(true));
+            assertThat(errMsg, token.getHeader().isMissingNode(), is(false));
             assertThat(errMsg, token.getPayload().isMissingNode(), is(true));
         }
     }
