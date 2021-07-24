@@ -16,7 +16,7 @@ There are three ways of running the extension:
 1. Standalone, e.g.
 
     ```sh
-    java -jar build/libs/wiremock-jwt-extension-0.7-standalone.jar
+    java -jar build/libs/wiremock-jwt-extension-0.8-standalone.jar
     ```
     
 2. As an extension of the WireMock standalone JAR, e.g.
@@ -24,7 +24,7 @@ There are three ways of running the extension:
     ```sh
     wget -nc https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.27.2/wiremock-standalone-2.27.2.jar
     java \
-            -cp wiremock-standalone-2.27.2.jar:build/libs/wiremock-jwt-extension-0.7.jar \
+            -cp wiremock-standalone-2.27.2.jar:build/libs/wiremock-jwt-extension-0.8.jar \
             com.github.tomakehurst.wiremock.standalone.WireMockServerRunner \
             --extensions="com.github.masonm.JwtMatcherExtension,com.github.masonm.JwtStubMappingTransformer"
     ```

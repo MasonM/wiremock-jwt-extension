@@ -9,7 +9,7 @@ plugins {
 sourceCompatibility = 1.7
 group = 'com.github.masonm'
 archivesBaseName = 'wiremock-jwt-extension'
-version = '0.7'
+version = '0.8'
 
 repositories {
     // Canonical URLs at https://central.sonatype.org/pages/consumers.html
