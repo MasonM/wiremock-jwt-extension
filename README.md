@@ -9,6 +9,22 @@ The request matcher extracts JWT tokens from incoming requests and matches again
 
 JWE (JSON Web Encryption) and signature verification are not currently supported. Patches welcome!
 
+# Installation
+
+Maven:
+```xml
+<dependency>
+  <groupId>com.github.masonm</groupId>
+  <artifactId>wiremock-jwt-extension</artifactId>
+  <version>0.8</version>
+</dependency>
+```
+
+Gradle:
+```groovy
+implementation 'com.github.masonm:wiremock-jwt-extension:0.8'
+```
+
 # Running
 
 There are three ways of running the extension:
