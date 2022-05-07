@@ -4,12 +4,13 @@ plugins {
     id 'maven'
     id 'signing'
     id 'com.github.johnrengelman.shadow' version '2.0.3'
+    id "org.owasp.dependencycheck" version "7.1.0.1"
 }
 
 sourceCompatibility = 1.7
 group = 'com.github.masonm'
 archivesBaseName = 'wiremock-jwt-extension'
-version = '0.8'
+version = '0.9'
 
 repositories {
     // Canonical URLs at https://central.sonatype.org/pages/consumers.html
@@ -108,11 +109,11 @@ uploadArchives {
 }
 
 dependencies {
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.3'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.3'
-    compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.2'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.2.2'
+    compile group: 'commons-codec', name: 'commons-codec', version: '1.15'
 
-    shadow group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'
+    shadow group: 'com.github.tomakehurst', name: 'wiremock-jre8', version: '2.33.2'
 
     testCompile group: 'com.google.guava', name: 'guava', version: '18.0'
     testCompile group: 'junit', name: 'junit', version: '4.12'

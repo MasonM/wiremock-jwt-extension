@@ -4,7 +4,7 @@ set -e
 
 source test-helpers.sh
 
-PROXY_BASE_URL="http://wiremock.org"
+PROXY_BASE_URL="https://wiremock.org"
 WIREMOCK_BASE_URL=http://localhost:8080
 
 launchWiremock
