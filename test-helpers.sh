@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=0.9
+VERSION=0.10
 
 launchWiremock() {
 	echo "Launching Wiremock and setting up proxying"

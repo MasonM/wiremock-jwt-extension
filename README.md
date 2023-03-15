@@ -16,13 +16,13 @@ Maven:
 <dependency>
   <groupId>com.github.masonm</groupId>
   <artifactId>wiremock-jwt-extension</artifactId>
-  <version>0.9</version>
+  <version>0.10</version>
 </dependency>
 ```
 
 Gradle:
 ```groovy
-implementation 'com.github.masonm:wiremock-jwt-extension:0.9'
+implementation 'com.github.masonm:wiremock-jwt-extension:0.10'
 ```
 
 # Running
@@ -32,7 +32,7 @@ There are three ways of running the extension:
 1. Standalone, e.g.
 
     ```sh
-    java -jar build/libs/wiremock-jwt-extension-0.9-standalone.jar
+    java -jar build/libs/wiremock-jwt-extension-0.10-standalone.jar
     ```
     
 2. As an extension of the WireMock standalone JAR, e.g.
@@ -40,7 +40,7 @@ There are three ways of running the extension:
     ```sh
     wget -nc https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/2.33.2/wiremock-jre8-standalone-2.33.2.jar
     java \
-            -cp wiremock-jre8-standalone-2.33.2.jar:build/libs/wiremock-jwt-extension-0.9.jar \
+            -cp wiremock-jre8-standalone-2.33.2.jar:build/libs/wiremock-jwt-extension-0.10.jar \
             com.github.tomakehurst.wiremock.standalone.WireMockServerRunner \
             --extensions="com.github.masonm.JwtMatcherExtension,com.github.masonm.JwtStubMappingTransformer"
     ```
