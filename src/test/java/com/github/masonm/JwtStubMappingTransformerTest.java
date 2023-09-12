@@ -14,8 +14,8 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 import java.util.Arrays;
 
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class JwtStubMappingTransformerTest {
     private static final JwtStubMappingTransformer TRANSFORMER = new JwtStubMappingTransformer();
@@ -85,6 +85,8 @@ public class JwtStubMappingTransformerTest {
                 null,
                 WireMock.urlEqualTo("/"),
                 RequestMethod.POST,
+                null,
+                null,
                 null,
                 null,
                 null,

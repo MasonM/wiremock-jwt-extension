@@ -16,13 +16,13 @@ Maven:
 <dependency>
   <groupId>com.github.masonm</groupId>
   <artifactId>wiremock-jwt-extension</artifactId>
-  <version>0.10</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
 Gradle:
 ```groovy
-implementation 'com.github.masonm:wiremock-jwt-extension:0.10'
+implementation 'com.github.masonm:wiremock-jwt-extension:1.0.0'
 ```
 
 # Running
@@ -32,16 +32,16 @@ There are three ways of running the extension:
 1. Standalone, e.g.
 
     ```sh
-    java -jar build/libs/wiremock-jwt-extension-0.10-standalone.jar
+    java -jar build/libs/wiremock-jwt-extension-1.0.0-standalone.jar
     ```
     
 2. As an extension of the WireMock standalone JAR, e.g.
 
     ```sh
-    wget -nc https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/2.33.2/wiremock-jre8-standalone-2.33.2.jar
+    wget -nc https://repo1.maven.org/maven2/org/wiremock/wiremock-standalone/3.0.4/wiremock-standalone-3.0.4.jar
     java \
-            -cp wiremock-jre8-standalone-2.33.2.jar:build/libs/wiremock-jwt-extension-0.10.jar \
-            com.github.tomakehurst.wiremock.standalone.WireMockServerRunner \
+            -cp wiremock-standalone-3.0.4.jar:build/libs/wiremock-jwt-extension-1.0.0.jar \
+            wiremock.Run \
             --extensions="com.github.masonm.JwtMatcherExtension,com.github.masonm.JwtStubMappingTransformer"
     ```
 
@@ -107,5 +107,5 @@ The transformer has the name "jwt-stub-mapping-transformer" and accepts a list o
 
 # Building
 
-Run `gradle jar` to build the JAR without WireMock or `gradle standalone` to build a standalone JAR.
+Run `gradle jar` to build the JAR without WireMock or `gradle standaloneJar` to build a standalone JAR.
 These will be placed in `build/libs/`.
