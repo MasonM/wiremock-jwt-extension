@@ -89,23 +89,14 @@ signing {
 }
 
 ext {
-    ossrhUsername = hasProperty('ossrhUsername') ? ossrhUsername : ''
-    ossrhPassword = hasProperty('ossrhPassword') ? ossrhPassword : ''
+    ossrhUsername = project.hasProperty('ossrhUsername') ? ossrhUsername : ''
+    ossrhPassword = project.hasProperty('ossrhPassword') ? ossrhPassword : ''
 }
 
 publishing {
     repositories {
         maven {
             url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
-            credentials {
-                username = ossrhUsername
-                password = ossrhPassword
-            }
-        }
-
-        maven {
-            name 'snapshots'
-            url 'https://oss.sonatype.org/content/repositories/snapshots'
             credentials {
                 username = ossrhUsername
                 password = ossrhPassword
