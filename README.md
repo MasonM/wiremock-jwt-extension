@@ -14,9 +14,9 @@ JWE (JSON Web Encryption) and signature verification are not currently supported
 Maven:
 ```xml
 <dependency>
-  <groupId>com.github.masonm</groupId>
-  <artifactId>wiremock-jwt-extension</artifactId>
-  <version>1.0.0</version>
+    <groupId>com.github.masonm</groupId>
+    <artifactId>wiremock-jwt-extension</artifactId>
+    <version>1.0.0</version>
 </dependency>
 ```
 

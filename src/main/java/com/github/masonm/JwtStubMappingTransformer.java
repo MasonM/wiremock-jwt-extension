@@ -72,21 +72,21 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
         }
 
         return new RequestPattern(
-          outer.getScheme(),
-          outer.getHost(),
-          outer.getPort(),
-          outer.getUrlMatcher(),
-          outer.getMethod(),
-          newHeaders,
-          outer.getPathParameters(),
-          outer.getQueryParameters(),
-          outer.getFormParameters(),
-          outer.getCookies(),
-          outer.getBasicAuthCredentials(),
-          outer.getBodyPatterns(),
-          customMatcher,
-          null,
-          outer.getMultipartPatterns()
+            outer.getScheme(),
+            outer.getHost(),
+            outer.getPort(),
+            outer.getUrlMatcher(),
+            outer.getMethod(),
+            newHeaders,
+            outer.getPathParameters(),
+            outer.getQueryParameters(),
+            outer.getFormParameters(),
+            outer.getCookies(),
+            outer.getBasicAuthCredentials(),
+            outer.getBodyPatterns(),
+            customMatcher,
+            null,
+            outer.getMultipartPatterns()
         );
     }
 

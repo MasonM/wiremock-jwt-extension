@@ -147,7 +147,7 @@ public class JwtStubMappingTransformerTest {
     }
 
     private Parameters getParams(String ...payloadFields) {
-       return Parameters.one(JwtStubMappingTransformer.PAYLOAD_FIELDS, Arrays.asList(payloadFields));
+        return Parameters.one(JwtStubMappingTransformer.PAYLOAD_FIELDS, Arrays.asList(payloadFields));
     }
 
     private void assertUnmodifiedOnTransform(StubMapping testMapping, Parameters parameters) {

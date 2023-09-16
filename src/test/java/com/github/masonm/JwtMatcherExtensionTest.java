@@ -64,8 +64,8 @@ public class JwtMatcherExtensionTest {
     public void withValidParametersAndNonMatchingRequest() {
         final MockRequest requestOnlyMatchingPayload = mockRequest()
             .header("Authorization", new TestAuthHeader(
-                 "{}",
-                 "{ \"test_payload\": \"payload_value\" }"
+                "{}",
+                "{ \"test_payload\": \"payload_value\" }"
             ).toString());
         assertFalse(isExactMatch(requestOnlyMatchingPayload, HEADER_PARAMETER));
         assertFalse(isExactMatch(requestOnlyMatchingPayload, BOTH_PARAMETERS));
