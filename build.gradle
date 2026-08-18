@@ -145,8 +145,10 @@ dependencies {
 
     shadow "org.wiremock:wiremock:3.13.2"
 
+    testImplementation platform("org.junit:junit-bom:$versions.junitJupiter")
     testImplementation "org.junit.jupiter:junit-jupiter-api:$versions.junitJupiter"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$versions.junitJupiter"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
     testCompileOnly "junit:junit:4.13.2"
     testRuntimeOnly "org.junit.vintage:junit-vintage-engine:$versions.junitJupiter"
     testImplementation "com.google.guava:guava:$versions.guava"

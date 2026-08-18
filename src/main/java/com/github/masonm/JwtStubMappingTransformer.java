@@ -75,6 +75,7 @@ public class JwtStubMappingTransformer extends StubMappingTransformer {
             outer.getScheme(),
             outer.getHost(),
             outer.getPort(),
+            outer.getClientIp(),
             outer.getUrlMatcher(),
             outer.getMethod(),
             newHeaders,
