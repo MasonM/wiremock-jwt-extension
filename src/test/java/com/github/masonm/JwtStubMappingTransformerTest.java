@@ -9,11 +9,11 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.util.Arrays;
 
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -83,6 +83,7 @@ public class JwtStubMappingTransformerTest {
                 null,
                 null,
                 null,
+                null,
                 WireMock.urlEqualTo("/"),
                 RequestMethod.POST,
                 null,
@@ -100,7 +101,7 @@ public class JwtStubMappingTransformerTest {
     }
 
     @Test
-    public void acceptanceTestReturnsModifiedMappingWhenMatchingValidPayloadField() {
+    public void acceptanceTestReturnsModifiedMappingWhenMatchingValidPayloadField() throws Exception {
         final TestAuthHeader testAuthHeader = new TestAuthHeader(
             "doesnt_matter",
             "{ \"matched_key\": \"matched_value\" }"
@@ -143,7 +144,7 @@ public class JwtStubMappingTransformerTest {
                     "}\n" +
                 "}\n" +
             "}";
-        assertThat(stubMappingJson, equalToJson(EXPECTED_STUB_MAPPING_JSON, JSONCompareMode.STRICT_ORDER));
+        JSONAssert.assertEquals(EXPECTED_STUB_MAPPING_JSON, stubMappingJson, JSONCompareMode.STRICT_ORDER);
     }
 
     private Parameters getParams(String ...payloadFields) {
