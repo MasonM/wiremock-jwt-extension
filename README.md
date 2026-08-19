@@ -1,7 +1,7 @@
 # Overview
 
 [![Build Status](https://github.com/MasonM/wiremock-jwt-extension/actions/workflows/gradle.yml/badge.svg)](https://github.com/MasonM/wiremock-jwt-extension/actions/workflows/gradle.yml?query=branch%3Amaster)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.masonm/wiremock-jwt-extension/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.masonm/wiremock-jwt-extension)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.masonm/wiremock-jwt-extension)](https://central.sonatype.com/artifact/com.github.masonm/wiremock-jwt-extension)
 
 wiremock-jwt-extension consists of two extensions for [WireMock](http://wiremock.org): a [request matcher extension](http://wiremock.org/docs/extending-wiremock/#custom-request-matchers) and a [stub mapping transformer extension](http://wiremock.org/docs/record-playback/#transforming-generated-stubs).
 
